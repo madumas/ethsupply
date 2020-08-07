@@ -9,6 +9,8 @@ export default class ethSupply {
     console.log('start');
     const genesisSupply = 72009990.50;
     const batchSize = 10000;
+    const getBurnedETH = web3.eth.getBalance("0x0000000000000000000000000000000000000000")
+    const BurnedETH =  parseInt(getBurnedETH) / 10**18
     let blockRewards=0;
     let uncleRewards=0;
     const lastBlockNumber = await _this.web3.eth.getBlockNumber();
@@ -61,6 +63,6 @@ export default class ethSupply {
     console.log('\nGenesis Supply: '+genesisSupply);
     console.log('Block rewards:'+blockRewards);
     console.log('Uncle rewards:'+uncleRewards);
-    console.log('Total Supply: '+(genesisSupply+blockRewards+uncleRewards)+ ' at block:'+lastBlockNumber);
+    console.log('Total Supply: '+((genesisSupply+blockRewards+uncleRewards) - BurnedETH) + ' at block:'+lastBlockNumber);
   }
 }
