@@ -19,12 +19,12 @@ connect
 WS Connected
 start
 (...)
-Block 10590000 Cumulative block rewards:37313251.28125 uncle rewards:3055454.625
-Block 10600000 Cumulative block rewards:37333290.53125 uncle rewards:3056596.125
-Block 10610000 Cumulative block rewards:37353328.53125 uncle rewards:3057708.375
+Block 10600001 Cumulative block rewards:37333286.53125 uncle rewards:2710763.375
+Block 10610001 Cumulative block rewards:37353326.53125 uncle rewards:2711803.875
+Block 10620001 Cumulative block rewards:37372746.59375 uncle rewards:2712745.125
 
 Genesis Supply: 72009990.5
-Block rewards:37361706.21875
-Uncle rewards:3058130.375
-Total Supply: 112429827.09375 at block:10614181
+Block rewards: 37372746.59375
+Uncle rewards: 2712745.125
+Total Supply: 112095482.21875 at block:10619692
 ```

@@ -1,4 +1,11 @@
 let _this;
+
+const miningRewards = [
+  {block: 0, reward: 5},
+  {block: 4370000, reward: 3},
+  {block: 7280000, reward: 2}
+];
+
 export default class ethSupply {
   constructor(web3) {
     this.web3 = web3;
@@ -13,54 +20,47 @@ export default class ethSupply {
     let uncleRewards=0;
     const lastBlockNumber = await _this.web3.eth.getBlockNumber();
 
-    for(let base=0;base<=lastBlockNumber;base+=batchSize) {
-        const promises=[];
-        for (let i=0;i<batchSize && (base+i)<=lastBlockNumber;i++) {
-          promises.push(new Promise( (resolve,reject) => {
-            const blockNumber = base+i;
-            let baseReward;
-            if(blockNumber<4370000) //EIP-649
-              baseReward=5;
-            else
-            if(blockNumber<7280000) //EIP-1234
-              baseReward=3;
-            else
-              baseReward=2;
-            _this.web3.eth.getBlock(blockNumber).then(block => {
+    //Iterate every block, except block 0
+    for(let base=1;base<=lastBlockNumber;base+=batchSize) {
+      const promises=[];
+      for (let i=0;i<batchSize && (base+i)<=lastBlockNumber;i++) {
+        promises.push(new Promise( (resolve,reject) => {
+          const blockNumber = base+i;
+          const baseReward = miningRewards.filter( rule => (rule.block < blockNumber) )
+            .reduce( (smaller,rule)=>Math.min(smaller,rule.reward),5 );
+          _this.web3.eth.getBlock(blockNumber).then(block => {
+            const totalReward = baseReward + baseReward * (1 / 32) * block.uncles.length;
+            let blockUncleRewards=0;
 
-              const totalReward = baseReward + baseReward * (1 / 32) * block.uncles.length;
-              blockRewards += totalReward;
-
-              if(block.uncles.length>0) {
-                const unclePromises=[];
-                let blockUncleRewards=0;
-                for(let index=0;index<block.uncles.length;index++) {
-                  unclePromises.push(
-                    new Promise((uncleResolve,uncleReject)=>
-                    _this.web3.eth.getUncle(blockNumber,index).then(uncleBlock => {
-                      blockUncleRewards += baseReward * (uncleBlock.number + 8 - blockNumber) / 8;
-                      uncleResolve();
-                    }))
-                  );
-                }
-                Promise.all(unclePromises).then(()=>{
-                  uncleRewards+=blockUncleRewards;
-                  resolve()
-                });
-              } else {
-                resolve();
+            if(block.uncles.length>0) {
+              const unclePromises=[];
+              for(let index=0;index<block.uncles.length;index++) {
+                unclePromises.push(
+                  new Promise((uncleResolve,uncleReject)=>
+                  _this.web3.eth.getUncle(blockNumber,index).then(uncleBlock => {
+                    blockUncleRewards += baseReward * (uncleBlock.number + 8 - blockNumber) / 8;
+                    uncleResolve();
+                  }))
+                );
               }
 
-              if(blockNumber%batchSize===0)
-                console.log('Block ' + blockNumber + " Cumulative block rewards:"+blockRewards + ' uncle rewards:'+uncleRewards);
-            })
-          }));
-        }
-        await Promise.all(promises);
+              Promise.all(unclePromises).then(()=>resolve({totalReward,blockUncleRewards}));
+            } else {
+              resolve({totalReward,blockUncleRewards});
+            }
+          })
+        }));
+      }
+      const batchRewards = await Promise.all(promises);
+      batchRewards.forEach(batch => {
+        blockRewards += batch.totalReward;
+        uncleRewards += batch.blockUncleRewards;
+      });
+      console.log('Block ' + (base+batchSize) + " Cumulative block rewards:"+blockRewards + ' uncle rewards:'+uncleRewards);
     }
     console.log('\nGenesis Supply: '+genesisSupply);
-    console.log('Block rewards:'+blockRewards);
-    console.log('Uncle rewards:'+uncleRewards);
+    console.log('Block rewards: '+blockRewards);
+    console.log('Uncle rewards: '+uncleRewards);
     console.log('Total Supply: '+(genesisSupply+blockRewards+uncleRewards)+ ' at block:'+lastBlockNumber);
   }
 }
