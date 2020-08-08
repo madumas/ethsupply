@@ -42,11 +42,11 @@ export default class ethSupply {
                       uncleResolve();
                     }))
                   );
-                  Promise.all(unclePromises).then(()=>{
-                    uncleRewards+=blockUncleRewards;
-                    resolve()
-                  });
                 }
+                Promise.all(unclePromises).then(()=>{
+                  uncleRewards+=blockUncleRewards;
+                  resolve()
+                });
               } else {
                 resolve();
               }
