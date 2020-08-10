@@ -2,8 +2,8 @@ let _this;
 
 const miningRewards = [
   {block: 0, reward: 5},
-  {block: 4370000, reward: 3},
-  {block: 7280000, reward: 2}
+  {block: 4370000, reward: 3}, //EIP-649 - Byzantium
+  {block: 7280000, reward: 2}  //EIP-1234 - Constantinople
 ];
 
 export default class ethSupply {

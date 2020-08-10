@@ -1,5 +1,5 @@
 # ethsupply
-Calculates the total amount of Eth ever **issued** by applying the Ethereum protocol rules in regards to mining rewards and uncle rewards.
+Calculates the total amount of Eth ever **issued** by applying the Ethereum protocol rules in regards to genesis block, mining rewards, and uncle rewards. 
 
 To determine the amount of Eth that **exists**, checkout [Nethermind's SupplyVerifier script](https://docs.nethermind.io/nethermind/guides-and-helpers/custom-analytic-tools). This method has the advantage of taking into account Eth destroyed by `selfdestruct()` with balances sent to self. Plus it does by traversing the complete Merkle tree and will convince the most skeptical. 
 
