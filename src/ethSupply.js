@@ -7,7 +7,7 @@ const miningRewards = [
   {block: 4370000, reward: 3}, //EIP-649 - Byzantium
   {block: 7280000, reward: 2}  //EIP-1234 - Constantinople
 ];
-const defaultGenesis = 72009990.49948;
+const defaultGenesis = new BigNumber(72009990499480000000000000);
 
 export default class ethSupply {
   constructor(web3, targetBlock, foundationFile) {
@@ -20,8 +20,7 @@ export default class ethSupply {
   genesisSupply() {
     if (this.foundationFile!=='none') {
       const foundation = JSON.parse(fs.readFileSync(this.foundationFile));
-      return Object.values(foundation.accounts).reduce((a,c)=>a.plus(c.balance||0),new BigNumber(0))
-        .div(1E18).toNumber();
+      return Object.values(foundation.accounts).reduce((a,c)=>a.plus(c.balance||0),new BigNumber(0));
     } else {
       return defaultGenesis;
     }
@@ -33,11 +32,10 @@ export default class ethSupply {
   }
 
   async run() {
-    console.log('start');
-    const genesisSupply = this.genesisSupply();
+    const initialSupply = this.genesisSupply();
     const batchSize = 10000;
-    let blockRewards=0;
-    let uncleRewards=0;
+    let blockRewards = new BigNumber(0);
+    let uncleRewards = new BigNumber(0);
     const lastBlockNumber = this.targetBlock || await _this.web3.eth.getBlockNumber();
 
     //Iterate every block, except block 0
@@ -47,10 +45,10 @@ export default class ethSupply {
         if(base+i===0) continue;
         promises.push(new Promise( (resolve,reject) => {
           const blockNumber = base+i;
-          const baseReward = this.baseReward(blockNumber);
+          const baseReward = new BigNumber(this.baseReward(blockNumber)*1E18);
           _this.web3.eth.getBlock(blockNumber).then(block => {
-            const totalReward = baseReward + baseReward * (1 / 32) * block.uncles.length;
-            let blockUncleRewards=0;
+            const totalReward = baseReward.plus(baseReward.div(1, 32).multipliedBy(block.uncles.length));
+            let blockUncleRewards=new BigNumber(0);
 
             if(block.uncles.length>0) {
               const unclePromises=[];
@@ -58,7 +56,7 @@ export default class ethSupply {
                 unclePromises.push(
                   new Promise((uncleResolve,uncleReject)=>
                   _this.web3.eth.getUncle(blockNumber,index).then(uncleBlock => {
-                    blockUncleRewards += baseReward * (uncleBlock.number + 8 - blockNumber) / 8;
+                    blockUncleRewards = blockUncleRewards.plus(baseReward.multipliedBy(uncleBlock.number + 8 - blockNumber).div(8));
                     uncleResolve();
                   }))
                 );
@@ -73,18 +71,19 @@ export default class ethSupply {
       }
       const batchRewards = await Promise.all(promises);
       batchRewards.forEach(batch => {
-        blockRewards += batch.totalReward;
-        uncleRewards += batch.blockUncleRewards;
+        blockRewards = blockRewards.plus(batch.totalReward);
+        uncleRewards = uncleRewards.plus(batch.blockUncleRewards);
       });
       if((base+batchSize)%100000===0)
-        console.log('Block ' + (base+batchSize) + " Cumulative block rewards:"+blockRewards
-          + ' uncle rewards:' + uncleRewards
-          + ' totalSuply: ' + (genesisSupply+blockRewards+uncleRewards));
+        console.log('Block ' + (base+batchSize) + " Cumulative block rewards:"+blockRewards.div(1E18).toNumber()
+          + ' uncle rewards:' + uncleRewards.div(1E18).toNumber()
+          + ' totalSupply: ' + (initialSupply.plus(blockRewards).plus(uncleRewards).div(1E18).toNumber()));
     }
 
-    console.log('\nGenesis Supply: '+genesisSupply);
-    console.log('Block rewards: '+blockRewards);
-    console.log('Uncle rewards: '+uncleRewards);
-    console.log('Total Supply: '+(genesisSupply+blockRewards+uncleRewards)+ ' at block:'+lastBlockNumber);
+    console.log('\nGenesis Supply: '+initialSupply.div(1E18).toNumber());
+    console.log('Block rewards: '+blockRewards.div(1E18).toNumber());
+    console.log('Uncle rewards: '+uncleRewards.div(1E18).toNumber());
+    console.log('Total Supply: '+(initialSupply.plus(blockRewards).plus(uncleRewards).div(1E18).toNumber())
+    + ' at block:'+lastBlockNumber);
   }
 }
