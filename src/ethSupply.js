@@ -47,7 +47,7 @@ export default class ethSupply {
           const blockNumber = base+i;
           const baseReward = new BigNumber(this.baseReward(blockNumber)*1E18);
           _this.web3.eth.getBlock(blockNumber).then(block => {
-            const totalReward = baseReward.plus(baseReward.div(1, 32).multipliedBy(block.uncles.length));
+            const totalReward = baseReward.plus(baseReward.dividedBy(32).multipliedBy(block.uncles.length));
             let blockUncleRewards=new BigNumber(0);
 
             if(block.uncles.length>0) {
@@ -56,7 +56,7 @@ export default class ethSupply {
                 unclePromises.push(
                   new Promise((uncleResolve,uncleReject)=>
                   _this.web3.eth.getUncle(blockNumber,index).then(uncleBlock => {
-                    blockUncleRewards = blockUncleRewards.plus(baseReward.multipliedBy(uncleBlock.number + 8 - blockNumber).div(8));
+                    blockUncleRewards = blockUncleRewards.plus(baseReward.multipliedBy(uncleBlock.number + 8 - blockNumber).dividedBy(8));
                     uncleResolve();
                   }))
                 );
@@ -75,15 +75,15 @@ export default class ethSupply {
         uncleRewards = uncleRewards.plus(batch.blockUncleRewards);
       });
       if((base+batchSize)%100000===0)
-        console.log('Block ' + (base+batchSize) + " Cumulative block rewards:"+blockRewards.div(1E18).toNumber()
-          + ' uncle rewards:' + uncleRewards.div(1E18).toNumber()
-          + ' totalSupply: ' + (initialSupply.plus(blockRewards).plus(uncleRewards).div(1E18).toNumber()));
+        console.log('Block ' + (base+batchSize) + " Cumulative block rewards:"+blockRewards.dividedBy(1E18).toNumber()
+          + ' uncle rewards:' + uncleRewards.dividedBy(1E18).toNumber()
+          + ' totalSupply: ' + (initialSupply.plus(blockRewards).plus(uncleRewards).dividedBy(1E18).toNumber()));
     }
 
-    console.log('\nGenesis Supply: '+initialSupply.div(1E18).toNumber());
-    console.log('Block rewards: '+blockRewards.div(1E18).toNumber());
-    console.log('Uncle rewards: '+uncleRewards.div(1E18).toNumber());
-    console.log('Total Supply: '+(initialSupply.plus(blockRewards).plus(uncleRewards).div(1E18).toNumber())
+    console.log('\nGenesis Supply: '+initialSupply.dividedBy(1E18).toNumber());
+    console.log('Block rewards: '+blockRewards.dividedBy(1E18).toNumber());
+    console.log('Uncle rewards: '+uncleRewards.dividedBy(1E18).toNumber());
+    console.log('Total Supply: '+(initialSupply.plus(blockRewards).plus(uncleRewards).dividedBy(1E18).toNumber())
     + ' at block:'+lastBlockNumber);
   }
 }
