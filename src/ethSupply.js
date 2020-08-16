@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js"
 let _this;
 
 const miningRewards = [
-  {block: 0, reward: 5},
+  {block: 1, reward: 5},
   {block: 4370000, reward: 3}, //EIP-649 - Byzantium
   {block: 7280000, reward: 2}  //EIP-1234 - Constantinople
 ];
@@ -27,7 +27,7 @@ export default class ethSupply {
   }
 
   baseReward(blockNumber) {
-    return miningRewards.filter( rule => (rule.block <= blockNumber) )
+    return blockNumber===0?0:miningRewards.filter( rule => (rule.block <= blockNumber) )
       .reduce( (smaller,rule)=>Math.min(smaller,rule.reward),5 );
   }
 
@@ -39,10 +39,9 @@ export default class ethSupply {
     const lastBlockNumber = this.targetBlock || await _this.web3.eth.getBlockNumber();
 
     //Iterate every block, except block 0
-    for(let base=0;base<=lastBlockNumber;base+=batchSize) {
+    for(let base=1;base<=lastBlockNumber;base+=batchSize) {
       const promises=[];
       for (let i=0;i<batchSize && (base+i)<=lastBlockNumber;i++) {
-        if(base+i===0) continue;
         promises.push(new Promise( (resolve,reject) => {
           const blockNumber = base+i;
           const baseReward = new BigNumber(this.baseReward(blockNumber)*1E18);
@@ -74,7 +73,7 @@ export default class ethSupply {
         blockRewards = blockRewards.plus(batch.totalReward);
         uncleRewards = uncleRewards.plus(batch.blockUncleRewards);
       });
-      if((base+batchSize)%100000===0)
+      if((base+batchSize-1)%1000000===0)
         console.log('Block ' + (base+batchSize) + " Cumulative block rewards:"+blockRewards.dividedBy(1E18).toNumber()
           + ' uncle rewards:' + uncleRewards.dividedBy(1E18).toNumber()
           + ' totalSupply: ' + (initialSupply.plus(blockRewards).plus(uncleRewards).dividedBy(1E18).toNumber()));

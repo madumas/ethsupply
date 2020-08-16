@@ -1,8 +1,9 @@
 import ethSupply from '../src/ethSupply';
 
-test('base reward block 0', () => {
+test('base reward block 0 and 1', () => {
   const eths = new ethSupply();
-  expect(eths.baseReward(0)).toBe(5);
+  expect(eths.baseReward(0)).toBe(0);
+  expect(eths.baseReward(1)).toBe(5);
 });
 
 test('base reward around block 4370000', () => {
