@@ -13,19 +13,27 @@ To determine the amount of Eth that **exists**, checkout [Nethermind's SupplyVer
 
 ## Usage
 ```node src/cli.js 
-node src/cli.js [args]
+ethsupply <cmd> [args]
 
 Options:
   --version         Show version number                                [boolean]
   --block           Specify which block to target   [string] [default: "latest"]
   --foundationFile  Specify an OpenEthereum or Parity foundation.json as the
                     source for genesis supply. If none specified, use the
-                    precomputed value of XXX          [string] [default: "none"]
+                    precomputed value of 72009990.49948
+                                                      [string] [default: "none"]
   --wsurl           Specify the WS URL of an ethereum node   [string] [required]
   --help            Show help                                          [boolean]
+
 ```
 
 Example:
 ```
  node src/cli.js --wsurl ws://192.168.0.23:8546 --block 1000000 --foundationFile ./foundation.json
 ```
+
+### Foundation File
+To verify the initial supply of Eth, you may provide a Parity/OpenEthereum `foundation.json` file to the script. It will read the file and sum all the balances of the genensis accounts.
+- [OpenEthereum](https://github.com/openethereum/openethereum/blob/master/ethcore/res/ethereum/foundation.json)
+- [Parity](https://github.com/paritytech/parity/blob/master/ethcore/res/ethereum/foundation.json)
+

@@ -9,7 +9,7 @@ let argv = require('yargs')
     type: 'string'
   })
   .option('foundationFile', {
-    describe: 'Specify an OpenEthereum or Parity foundation.json as the source for genesis supply. If none specified, use the precomputed value of XXX',
+    describe: 'Specify an OpenEthereum or Parity foundation.json as the source for genesis supply. If none specified, use the precomputed value of 72009990.49948',
     default: 'none',
     demandOption: false,
     type: 'string'

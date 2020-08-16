@@ -7,7 +7,7 @@ const miningRewards = [
   {block: 4370000, reward: 3}, //EIP-649 - Byzantium
   {block: 7280000, reward: 2}  //EIP-1234 - Constantinople
 ];
-const defaultGenesis = 72009990.50;
+const defaultGenesis = 72009990.49948;
 
 export default class ethSupply {
   constructor(web3, targetBlock, foundationFile) {
@@ -18,7 +18,7 @@ export default class ethSupply {
   }
 
   genesisSupply() {
-    if (this.foundationFile) {
+    if (this.foundationFile!=='none') {
       const foundation = JSON.parse(fs.readFileSync(this.foundationFile));
       return Object.values(foundation.accounts).reduce((a,c)=>a.plus(c.balance||0),new BigNumber(0))
         .div(1E18).toNumber();
