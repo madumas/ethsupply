@@ -12,21 +12,20 @@ To determine the amount of Eth that **exists**, checkout [Nethermind's SupplyVer
 `npm install`
 
 ## Usage
-`export WSNODE=ws://nodeaddress:8546 && yarn start` 
+```node src/cli.js 
+node src/cli.js [args]
+
+Options:
+  --version         Show version number                                [boolean]
+  --block           Specify which block to target   [string] [default: "latest"]
+  --foundationFile  Specify an OpenEthereum or Parity foundation.json as the
+                    source for genesis supply. If none specified, use the
+                    precomputed value of XXX          [string] [default: "none"]
+  --wsurl           Specify the WS URL of an ethereum node   [string] [required]
+  --help            Show help                                          [boolean]
+```
 
 Example:
 ```
-#export WSNODE=ws://nodeaddress:8546 && yarn start
-connect
-WS Connected
-start
-(...)
-Block 10600001 Cumulative block rewards:37333286.53125 uncle rewards:2710763.375
-Block 10610001 Cumulative block rewards:37353326.53125 uncle rewards:2711803.875
-Block 10620001 Cumulative block rewards:37372746.59375 uncle rewards:2712745.125
-
-Genesis Supply: 72009990.5
-Block rewards: 37372746.59375
-Uncle rewards: 2712745.125
-Total Supply: 112095482.21875 at block:10619692
+ node src/cli.js --wsurl ws://192.168.0.23:8546 --block 1000000 --foundationFile ./foundation.json
 ```
