@@ -74,7 +74,7 @@ export default class ethSupply {
         uncleRewards = uncleRewards.plus(batch.blockUncleRewards);
       });
       if((base+batchSize-1)%1000000===0)
-        console.log('Block ' + (base+batchSize) + " Cumulative block rewards:"+blockRewards.dividedBy(1E18).toNumber()
+        console.log('Block ' + (base+batchSize-1) + " Cumulative block rewards:"+blockRewards.dividedBy(1E18).toNumber()
           + ' uncle rewards:' + uncleRewards.dividedBy(1E18).toNumber()
           + ' totalSupply: ' + (initialSupply.plus(blockRewards).plus(uncleRewards).dividedBy(1E18).toNumber()));
     }
