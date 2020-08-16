@@ -12,9 +12,24 @@ export default class ethSupply {
     _this=this;
   }
 
+  genesisSupply() {
+    if (this.foundationFile) {
+      const foundation = JSON.parse(fs.readFileSync(this.foundationFile));
+      return Object.values(foundation.accounts).reduce((a,c)=>a.plus(c.balance||0),new BigNumber(0))
+        .div(1E18).toNumber();
+    } else {
+      return defaultGenesis;
+    }
+  }
+
+  baseReward(blockNumber) {
+    return miningRewards.filter( rule => (rule.block <= blockNumber) )
+      .reduce( (smaller,rule)=>Math.min(smaller,rule.reward),5 );
+  }
+
   async run() {
     console.log('start');
-    const genesisSupply = 72009990.50;
+    const genesisSupply = this.genesisSupply();
     const batchSize = 10000;
     let blockRewards=0;
     let uncleRewards=0;
@@ -26,8 +41,7 @@ export default class ethSupply {
       for (let i=0;i<batchSize && (base+i)<=lastBlockNumber;i++) {
         promises.push(new Promise( (resolve,reject) => {
           const blockNumber = base+i;
-          const baseReward = miningRewards.filter( rule => (rule.block < blockNumber) )
-            .reduce( (smaller,rule)=>Math.min(smaller,rule.reward),5 );
+          const baseReward = this.baseReward(blockNumber);
           _this.web3.eth.getBlock(blockNumber).then(block => {
             const totalReward = baseReward + baseReward * (1 / 32) * block.uncles.length;
             let blockUncleRewards=0;
