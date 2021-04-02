@@ -53,3 +53,7 @@ To verify the initial supply of Eth, you may provide a Parity/OpenEthereum `foun
 - [OpenEthereum](https://github.com/openethereum/openethereum/blob/master/ethcore/res/ethereum/foundation.json)
 - [Parity](https://github.com/paritytech/parity/blob/master/ethcore/res/ethereum/foundation.json)
 
+## See also
+- https://github.com/0xTycoon/mysupplyaudit
+- https://github.com/lastmjs/eth-total-supply
+- https://github.com/TrueBlocks/trueblocks-core/tree/develop/src/other/issuance
